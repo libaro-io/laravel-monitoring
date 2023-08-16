@@ -18,7 +18,7 @@ class CheckFailedNotification extends \Spatie\Health\Notifications\CheckFailedNo
         foreach ($this->results as $result) {
             $card = Card::create()
                 ->header(
-                    $result->check->getLabel() . ': ' . $result->getShortSummary(),
+                    $result->check->getLabel().': '.$result->getShortSummary(),
                     $result->getNotificationMessage(),
                 );
 
