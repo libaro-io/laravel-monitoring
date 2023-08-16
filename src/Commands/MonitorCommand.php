@@ -1,12 +1,12 @@
 <?php
 
-namespace VendorName\Skeleton\Commands;
+namespace Libaro\LaravelMonitoring\Commands;
 
 use Illuminate\Console\Command;
 
-class SkeletonCommand extends Command
+class MonitorCommand extends Command
 {
-    public $signature = 'skeleton';
+    public $signature = 'laravel-monitoring';
 
     public $description = 'My command';
 

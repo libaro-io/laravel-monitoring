@@ -1,0 +1,11 @@
+services:
+  php:
+    build:
+      context: .
+      dockerfile: .docker/php/Dockerfile
+    container_name: laravel_monitoring_php
+    restart: always
+    user: dev
+    volumes:
+      - .:/usr/src/app:delegated
+      - ~/.ssh:/home/dev/.ssh:delegated
