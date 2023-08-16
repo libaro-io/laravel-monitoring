@@ -40,7 +40,7 @@ test('toGoogleChat returns correct message', function () {
     foreach ($checkResults as $result) {
         $card = Card::create()
             ->header(
-                $result->check->getLabel(),
+                $result->check->getLabel() . ': ' . $result->getShortSummary(),
                 $result->getNotificationMessage(),
             );
 
