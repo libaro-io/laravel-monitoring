@@ -3,8 +3,8 @@
 namespace Libaro\LaravelMonitoring\Tests;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Orchestra\Testbench\TestCase as Orchestra;
 use Libaro\LaravelMonitoring\LaravelMonitoringServiceProvider;
+use Orchestra\Testbench\TestCase as Orchestra;
 use Spatie\Health\HealthServiceProvider;
 
 class TestCase extends Orchestra

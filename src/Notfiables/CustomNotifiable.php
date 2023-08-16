@@ -9,6 +9,6 @@ class CustomNotifiable extends Notifiable
 {
     public function routeNotificationForGoogleChat(): string|array
     {
-        return config('health.notifications.' . GoogleChatChannel::class . '.space');
+        return config('health.notifications.'.GoogleChatChannel::class.'.space');
     }
 }

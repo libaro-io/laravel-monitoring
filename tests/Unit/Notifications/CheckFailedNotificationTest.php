@@ -16,10 +16,10 @@ test('toGoogleChat returns correct message', function () {
         ->check($checkStub)
         ->failed('The message')
         ->meta([
-           'meta integer' => 123,
-           'meta float' => 123.123,
-           'meta bool' => true,
-           'meta string' => 'a string',
+            'meta integer' => 123,
+            'meta float' => 123.123,
+            'meta bool' => true,
+            'meta string' => 'a string',
         ]);
 
     $result2 = Result::make()

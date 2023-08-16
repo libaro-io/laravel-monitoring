@@ -7,6 +7,7 @@ use Libaro\LaravelMonitoring\Notifications\CheckFailedNotification;
 use Mockery\MockInterface;
 use Spatie\Health\Checks\Check;
 use Spatie\Health\Checks\Result;
+
 use function Pest\Laravel\artisan;
 
 it('has correct signature', function () {
