@@ -21,8 +21,8 @@ class TestCase extends Orchestra
     protected function getPackageProviders($app)
     {
         return [
-            LaravelMonitoringServiceProvider::class,
             HealthServiceProvider::class,
+            LaravelMonitoringServiceProvider::class,
         ];
     }
 

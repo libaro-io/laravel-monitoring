@@ -2,18 +2,19 @@
 
 namespace Libaro\LaravelMonitoring\Commands;
 
-use Illuminate\Console\Command;
+use Libaro\LaravelMonitoring\Notifications\CheckFailedNotification;
 
-class MonitorCommand extends Command
+class MonitorCommand extends \Spatie\Health\Commands\RunHealthChecksCommand
 {
-    public $signature = 'laravel-monitoring';
-
-    public $description = 'My command';
+    protected $signature = 'libaro:monitor {--do-not-store-results} {--no-notification} {--fail-command-on-failing-check}';
 
     public function handle(): int
     {
-        $this->comment('All done');
+        return parent::handle();
+    }
 
-        return self::SUCCESS;
+    protected function getFailedNotificationClass(): string
+    {
+        return CheckFailedNotification::class;
     }
 }

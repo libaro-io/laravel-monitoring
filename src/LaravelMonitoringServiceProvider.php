@@ -2,8 +2,12 @@
 
 namespace Libaro\LaravelMonitoring;
 
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Contracts\Foundation\CachesConfiguration;
-use Libaro\LaravelMonitoring\Commands\MonitorHealthCommand;
+use Libaro\LaravelMonitoring\Commands\MonitorCommand;
+use Libaro\LaravelMonitoring\Services\CheckBuilder;
+use Spatie\Health\Commands\DispatchQueueCheckJobsCommand;
+use Spatie\Health\Facades\Health;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 
@@ -20,13 +24,19 @@ class LaravelMonitoringServiceProvider extends PackageServiceProvider
             ->name('laravel-monitoring')
             ->hasConfigFile()
             ->hasCommands([
-                MonitorHealthCommand::class,
+                MonitorCommand::class,
             ]);
     }
 
     public function packageBooted(): void
     {
         $this->mergeHealthConfig();
+        $this->scheduleCommands();
+    }
+
+    public function packageRegistered()
+    {
+        $this->registerChecks();
     }
 
     private function mergeHealthConfig(): void
@@ -38,5 +48,22 @@ class LaravelMonitoringServiceProvider extends PackageServiceProvider
                 $config->get('health', []), $config->get('monitoring.health'),
             ));
         }
+    }
+
+    private function scheduleCommands(): void
+    {
+        /** @var Schedule $schedule */
+        $schedule = app(Schedule::class);
+        $schedule->command(MonitorCommand::class)->everyMinute();
+        $schedule->command(DispatchQueueCheckJobsCommand::class)->everyMinute();
+    }
+
+    private function registerChecks(): void
+    {
+        /** @var CheckBuilder $checkBuilder */
+        $checkBuilder = app(CheckBuilder::class);
+        $checks = $checkBuilder->build(config('monitoring'));
+
+        Health::checks($checks);
     }
 }

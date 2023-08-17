@@ -1,6 +1,14 @@
 <?php
 
+use Illuminate\Console\Application;
+use Illuminate\Console\Scheduling\Schedule;
 use Libaro\LaravelMonitoring\LaravelMonitoringServiceProvider;
+use Libaro\LaravelMonitoring\Services\CheckBuilder;
+use Mockery\MockInterface;
+use Spatie\Health\Checks\Checks\DatabaseCheck;
+use Spatie\Health\Checks\Checks\QueueCheck;
+use Spatie\Health\Commands\DispatchQueueCheckJobsCommand;
+use Spatie\Health\Facades\Health;
 
 it('merges config correctly', function () {
     $monitoringHealthConfig = [
@@ -45,4 +53,64 @@ it('merges config correctly', function () {
     $actualHealthConfig = config('health');
 
     expect($actualHealthConfig)->toEqual($expectedHealthConfig);
+});
+
+test('schedule has correct entries for commands', function (string $command, string $expression) {
+    $sut = new LaravelMonitoringServiceProvider($this->app);
+    $sut->packageBooted();
+
+    /** @var Schedule $schedule */
+    $schedule = app(Schedule::class);
+
+    $itemsWithCommand = collect($schedule->events())
+        ->where('command', Application::formatCommandString($command));
+
+    expect($itemsWithCommand)
+        ->not->toBeEmpty(sprintf('Failed asserting that the "%s" command was scheduled', $command));
+
+    $itemsWithCommandAndExpression = $itemsWithCommand
+        ->where('expression', $expression);
+
+    expect($itemsWithCommandAndExpression)
+        ->not->toBeEmpty(sprintf('Failed asserting that the "%s" command was scheduled with expression "%s"', $command, $expression));
+})->with([
+    [
+        'command' => 'libaro:monitor',
+        'expression' => '* * * * *',
+    ],
+    [
+        'command' => (new DispatchQueueCheckJobsCommand)->getName(),
+        'expression' => '* * * * *',
+    ],
+]);
+
+it('registers checks', function () {
+    $expectedConfig = [
+        'config_item' => 'Config value',
+        'other_config_item' => 'Other config value',
+    ];
+
+    config()->set('monitoring', $expectedConfig);
+
+    $expectedChecks = [
+        QueueCheck::new(),
+        DatabaseCheck::new(),
+    ];
+
+    $this->mock(CheckBuilder::class, function (CheckBuilder&MockInterface $mock) use ($expectedChecks, $expectedConfig) {
+        $mock
+            ->shouldReceive('build')
+            ->with($expectedConfig)
+            ->once()
+            ->andReturns($expectedChecks);
+    });
+
+    Health::spy();
+
+    $sut = new LaravelMonitoringServiceProvider($this->app);
+    $sut->packageRegistered();
+
+    Health::shouldHaveReceived('checks')
+        ->with($expectedChecks)
+        ->once();
 });
