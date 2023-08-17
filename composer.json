@@ -1,8 +1,8 @@
 {
-    "name": "libaro-io/laravel-monitoring",
+    "name": "libaro/laravel-monitoring",
     "description": "Monitoring and alerting for Laravel applications",
     "keywords": [
-        "libaro-io",
+        "libaro",
         "laravel",
         "laravel-monitoring"
     ],

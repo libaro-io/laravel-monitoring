@@ -12,7 +12,7 @@ The Libaro monitoring package, a config based monitoring setup for your Laravel 
 You can install the package using composer:
 
 ```bash
-composer require libaro-io/laravel-monitoring
+composer require libaro/laravel-monitoring
 ```
 
 ## Configuration
