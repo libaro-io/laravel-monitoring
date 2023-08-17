@@ -2,12 +2,21 @@
 
 // config for Libaro/LaravelMonitoring
 return [
+    /*
+    |--------------------------------------------------------------------------
+    | Queue Monitors
+    |--------------------------------------------------------------------------
+    |
+    | This section defines which queues are monitored and which values will
+    | trigger a notification, the notifications will be sent through the
+    | health package, consult the health config section for more info.
+    |
+    */
+
     'queue' => [
-        'default' => [
-            // A test job will be dispatched every minute, when it didn't run for longer
-            // this value, a notification will be triggered
-            'max_wait_minutes' => 5,
-        ],
+//        'default' => [
+//            'max_wait_minutes' => 5,
+//        ],
     ],
 
 
@@ -19,6 +28,11 @@ return [
     | This package utilizes the spatie/laravel-health package to perform checks
     | You can choose, either change your health configuration here or in the
     | spatie packages health.php, this one has precedence over health.php.
+    |
+    |
+    | To consult spatie/laravel-health documentation, please visit the webpage
+    | https://spatie.be/docs/laravel-health/v1, all configuration available
+    | for it can be overridden here, there is no need to use their files.
     |
     */
 
