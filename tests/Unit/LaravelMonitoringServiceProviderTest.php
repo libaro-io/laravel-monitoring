@@ -1,16 +1,14 @@
 <?php
 
-use Illuminate\Console\Application;
-use Illuminate\Console\Scheduling\Schedule;
 use Libaro\LaravelMonitoring\LaravelMonitoringServiceProvider;
 use Libaro\LaravelMonitoring\Services\CheckBuilder;
+use Libaro\LaravelMonitoring\Services\CommandScheduler;
 use Mockery\MockInterface;
 use Spatie\Health\Checks\Checks\DatabaseCheck;
 use Spatie\Health\Checks\Checks\QueueCheck;
-use Spatie\Health\Commands\DispatchQueueCheckJobsCommand;
 use Spatie\Health\Facades\Health;
 
-it('merges config correctly', function () {
+test('packageBooted merges config correctly', function () {
     $monitoringHealthConfig = [
         'a duplicate single value' => 'the single value (altered)',
         'another single value' => 'the other single value',
@@ -55,36 +53,26 @@ it('merges config correctly', function () {
     expect($actualHealthConfig)->toEqual($expectedHealthConfig);
 });
 
-test('schedule has correct entries for commands', function (string $command, string $expression) {
+test('packageBooted schedules commands', function () {
+    $expectedConfig = [
+        'config_item' => 'Config value',
+        'other_config_item' => 'Other config value',
+    ];
+
+    config()->set('monitoring', $expectedConfig);
+
+    $commandSchedulerSpy = $this->spy(CommandScheduler::class);
+
     $sut = new LaravelMonitoringServiceProvider($this->app);
     $sut->packageBooted();
 
-    /** @var Schedule $schedule */
-    $schedule = app(Schedule::class);
+    $commandSchedulerSpy
+        ->shouldHaveReceived('schedule')
+        ->once()
+        ->with($expectedConfig);
+});
 
-    $itemsWithCommand = collect($schedule->events())
-        ->where('command', Application::formatCommandString($command));
-
-    expect($itemsWithCommand)
-        ->not->toBeEmpty(sprintf('Failed asserting that the "%s" command was scheduled', $command));
-
-    $itemsWithCommandAndExpression = $itemsWithCommand
-        ->where('expression', $expression);
-
-    expect($itemsWithCommandAndExpression)
-        ->not->toBeEmpty(sprintf('Failed asserting that the "%s" command was scheduled with expression "%s"', $command, $expression));
-})->with([
-    [
-        'command' => 'libaro:monitor',
-        'expression' => '* * * * *',
-    ],
-    [
-        'command' => (new DispatchQueueCheckJobsCommand)->getName(),
-        'expression' => '* * * * *',
-    ],
-]);
-
-it('registers checks', function () {
+test('packageRegistered registers checks', function () {
     $expectedConfig = [
         'config_item' => 'Config value',
         'other_config_item' => 'Other config value',

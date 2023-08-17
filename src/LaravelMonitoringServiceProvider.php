@@ -2,11 +2,10 @@
 
 namespace Libaro\LaravelMonitoring;
 
-use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Contracts\Foundation\CachesConfiguration;
 use Libaro\LaravelMonitoring\Commands\MonitorCommand;
 use Libaro\LaravelMonitoring\Services\CheckBuilder;
-use Spatie\Health\Commands\DispatchQueueCheckJobsCommand;
+use Libaro\LaravelMonitoring\Services\CommandScheduler;
 use Spatie\Health\Facades\Health;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
@@ -34,7 +33,7 @@ class LaravelMonitoringServiceProvider extends PackageServiceProvider
         $this->scheduleCommands();
     }
 
-    public function packageRegistered()
+    public function packageRegistered(): void
     {
         $this->registerChecks();
     }
@@ -45,17 +44,16 @@ class LaravelMonitoringServiceProvider extends PackageServiceProvider
             $config = $this->app->make('config');
 
             $config->set('health', array_replace_recursive(
-                $config->get('health', []), $config->get('monitoring.health'),
+                $config->get('health', []), $config->get('monitoring.health', []),
             ));
         }
     }
 
     private function scheduleCommands(): void
     {
-        /** @var Schedule $schedule */
-        $schedule = app(Schedule::class);
-        $schedule->command(MonitorCommand::class)->everyMinute();
-        $schedule->command(DispatchQueueCheckJobsCommand::class)->everyMinute();
+        /** @var CommandScheduler $scheduler */
+        $scheduler = app(CommandScheduler::class);
+        $scheduler->schedule(config('monitoring'));
     }
 
     private function registerChecks(): void
