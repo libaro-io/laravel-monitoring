@@ -64,9 +64,11 @@
     "extra": {
         "laravel": {
             "providers": [
+                "Spatie\\Health\\HealthServiceProvider",
                 "Libaro\\LaravelMonitoring\\LaravelMonitoringServiceProvider"
             ],
             "aliases": {
+                "Health": "Spatie\\Health\\Facades\\Health",
                 "LaravelMonitoring": "Libaro\\LaravelMonitoring\\Facades\\LaravelMonitoring"
             }
         }
