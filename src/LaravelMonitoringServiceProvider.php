@@ -2,7 +2,9 @@
 
 namespace Libaro\LaravelMonitoring;
 
+use Illuminate\Contracts\Config\Repository;
 use Illuminate\Contracts\Foundation\CachesConfiguration;
+use Illuminate\Support\Arr;
 use Libaro\LaravelMonitoring\Commands\MonitorCommand;
 use Libaro\LaravelMonitoring\Services\CheckBuilder;
 use Libaro\LaravelMonitoring\Services\CommandScheduler;
@@ -41,10 +43,15 @@ class LaravelMonitoringServiceProvider extends PackageServiceProvider
     private function mergeHealthConfig(): void
     {
         if (! ($this->app instanceof CachesConfiguration && $this->app->configurationIsCached())) {
+            /** @var Repository $config */
             $config = $this->app->make('config');
 
+            $healthConfig = $config->get('health', []);
+
+            data_forget($healthConfig, 'result_stores');
+
             $config->set('health', array_replace_recursive(
-                $config->get('health', []), $config->get('monitoring.health', []),
+                $healthConfig, $config->get('monitoring.health', []),
             ));
         }
     }

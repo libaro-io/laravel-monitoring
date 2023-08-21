@@ -53,6 +53,42 @@ test('packageBooted merges config correctly', function () {
     expect($actualHealthConfig)->toEqual($expectedHealthConfig);
 });
 
+test('packageBooted removes the default result store', function () {
+    $monitoringHealthConfig = [
+        'result_stores' => [
+            'some other result store' => [
+                'some other' => 'some other data',
+            ],
+        ],
+    ];
+
+    $healthConfig = [
+        'result_stores' => [
+            'a result store' => [
+                'some key' => 'some data',
+            ],
+        ],
+    ];
+
+    $expectedHealthConfig = [
+        'result_stores' => [
+            'some other result store' => [
+                'some other' => 'some other data',
+            ],
+        ],
+    ];
+
+    config()->set('health', $healthConfig);
+    config()->set('monitoring.health', $monitoringHealthConfig);
+
+    $sut = new LaravelMonitoringServiceProvider($this->app);
+    $sut->packageBooted();
+
+    $actualHealthConfig = config('health');
+
+    expect($actualHealthConfig)->toEqual($expectedHealthConfig);
+});
+
 test('packageBooted schedules commands', function () {
     $expectedConfig = [
         'config_item' => 'Config value',
