@@ -4,7 +4,6 @@ namespace Libaro\LaravelMonitoring;
 
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Contracts\Foundation\CachesConfiguration;
-use Illuminate\Support\Arr;
 use Libaro\LaravelMonitoring\Commands\MonitorCommand;
 use Libaro\LaravelMonitoring\Services\CheckBuilder;
 use Libaro\LaravelMonitoring\Services\CommandScheduler;
@@ -48,7 +47,7 @@ class LaravelMonitoringServiceProvider extends PackageServiceProvider
 
             $healthConfig = $config->get('health', []);
 
-            data_forget($healthConfig, 'result_stores');
+            unset($healthConfig['result_stores']);
 
             $config->set('health', array_replace_recursive(
                 $healthConfig, $config->get('monitoring.health', []),
