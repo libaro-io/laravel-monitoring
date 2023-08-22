@@ -36,6 +36,10 @@ return [
     */
 
     'health' => [
+        'result_stores' => [
+            \Spatie\Health\ResultStores\InMemoryHealthResultStore::class,
+        ],
+
         'notifications' => [
             'notifiable' => \Libaro\LaravelMonitoring\Notfiables\CustomNotifiable::class,
 
