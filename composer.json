@@ -36,8 +36,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Libaro\\LaravelMonitoring\\": "src/",
-            "Libaro\\LaravelMonitoring\\Database\\Factories\\": "database/factories/"
+            "Libaro\\LaravelMonitoring\\": "src/"
         }
     },
     "autoload-dev": {
