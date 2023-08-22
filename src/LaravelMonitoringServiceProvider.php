@@ -30,6 +30,11 @@ class LaravelMonitoringServiceProvider extends PackageServiceProvider
 
     public function packageBooted(): void
     {
+        $this->app->booted(fn () => $this->appBooted());
+    }
+
+    public function appBooted(): void
+    {
         $this->mergeHealthConfig();
         $this->scheduleCommands();
     }

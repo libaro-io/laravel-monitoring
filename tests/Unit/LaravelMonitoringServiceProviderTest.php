@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Foundation\Application;
 use Libaro\LaravelMonitoring\LaravelMonitoringServiceProvider;
 use Libaro\LaravelMonitoring\Services\CheckBuilder;
 use Libaro\LaravelMonitoring\Services\CommandScheduler;
@@ -8,7 +9,33 @@ use Spatie\Health\Checks\Checks\DatabaseCheck;
 use Spatie\Health\Checks\Checks\QueueCheck;
 use Spatie\Health\Facades\Health;
 
-test('packageBooted merges config correctly', function () {
+test('packageBooted registers appBooted method to be called after the app booted', function () {
+    /** @var callable|null $callback */
+    $callback = null;
+
+    /** @var Application|MockInterface $appMock */
+    $appMock = Mockery::mock($this->app);
+    $appMock->shouldReceive('booted')
+        ->once()
+        ->with(Mockery::on(function ($callable) use (&$callback) {
+            $callback = $callable;
+
+            return true;
+        }));
+
+    $mock = Mockery::mock(LaravelMonitoringServiceProvider::class, [$appMock])->makePartial();
+    $mock->shouldNotReceive('appBooted');
+
+    $mock->packageBooted();
+
+    expect($callback)->toBeCallable();
+
+    $mock->shouldReceive('appBooted')->once();
+
+    $callback();
+});
+
+test('appBooted merges config correctly', function () {
     $monitoringHealthConfig = [
         'a duplicate single value' => 'the single value (altered)',
         'another single value' => 'the other single value',
@@ -46,7 +73,7 @@ test('packageBooted merges config correctly', function () {
     config()->set('monitoring.health', $monitoringHealthConfig);
 
     $sut = new LaravelMonitoringServiceProvider($this->app);
-    $sut->packageBooted();
+    $sut->appBooted();
 
     $actualHealthConfig = config('health');
 
@@ -89,7 +116,7 @@ test('packageBooted removes the default result store', function () {
     expect($actualHealthConfig)->toEqual($expectedHealthConfig);
 });
 
-test('packageBooted schedules commands', function () {
+test('appBooted schedules commands', function () {
     $expectedConfig = [
         'config_item' => 'Config value',
         'other_config_item' => 'Other config value',
@@ -100,7 +127,7 @@ test('packageBooted schedules commands', function () {
     $commandSchedulerSpy = $this->spy(CommandScheduler::class);
 
     $sut = new LaravelMonitoringServiceProvider($this->app);
-    $sut->packageBooted();
+    $sut->appBooted();
 
     $commandSchedulerSpy
         ->shouldHaveReceived('schedule')
